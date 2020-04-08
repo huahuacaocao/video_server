@@ -35,3 +35,26 @@ func Add(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	utils.SendNormalResponse(w, codes.SuccessDefault)
 	return
 }
+
+type GetResp struct {
+	Id int `json:"id"`
+}
+
+// 单用户
+func Get(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	name := p.ByName("username")
+	user, err := dbops.GetUser(name)
+	if err != nil {
+		log.Println("user.Get:error:", err)
+		utils.SendErrorResponse(w, codes.ErrorDB)
+		return
+	}
+
+	if user == nil {
+		utils.SendNormalResponse(w, codes.SuccessEmptyEntity)
+		return
+	}
+
+	utils.SendNormalResponse(w, codes.GenSuccessResponse(GetResp{Id: user.Id}))
+	return
+}
